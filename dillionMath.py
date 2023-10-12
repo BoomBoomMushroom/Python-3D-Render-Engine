@@ -14,8 +14,13 @@ class Vector3:
         if vecB == None or type(vecB) != Vector3: return None
         return math.sqrt( math.pow(self.x + vecB.x, 2) + math.pow(self.y + vecB.y, 2) + math.pow(self.z + vecB.z, 2) )
 
+
+
     def toTuple(self) -> tuple[float, float, float]:
         return (self.x, self.y, self.z)
+    
+    def toVector3(toConvert: list | tuple[float, float, float] = [0,0,0]):
+        return Vector3(toConvert[0], toConvert[1], toConvert[2])
 
     # Dunder Methods
     def __add__(self, other = None):
@@ -27,9 +32,9 @@ class Vector3:
         return Vector3(self.x - other.x, self.y - other.y, self.z - other.z)
     
     def __mul__(self, other = None):
-        if type(other) == Vector3:
+        if isinstance(other, Vector3):
             return Vector3(self.x * other.x, self.y * other.y, self.z * other.z)
-        elif type(other) == float or type(other) == int:
+        elif isinstance(other, (float, int)):
             return Vector3(self.x * other, self.y * other, self.z * other)
         raise TypeError("Can only multiply Vector3 with other Vector3, ints, and floats")
 
@@ -37,27 +42,19 @@ class Vector3:
         return f"Vector3({self.x}, {self.y}, {self.z})"
 
     # Variables
-    # using "@property" will make it so you can use it like this:
-    # "Vector3.zero" instead of "Vector3.zero()"
-    @property
+    # can't use "@property" because python doesn't seem to recognize it :/
     def zero():
         return Vector3(0,0,0)
-    @property
     def left():
         return Vector3(-1,0,0)
-    @property
     def right():
         return Vector3(1,0,0)
-    @property
     def up():
         return Vector3(0,1,0)
-    @property
     def down():
         return Vector3(0,-1,0)
-    @property
     def forwards():
         return Vector3(0,0,1)
-    @property
     def back():
         return Vector3(0,0,-1)
 

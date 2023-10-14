@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class Vector3:
     def __init__(self, x: float = 0, y: float = 0, z: float = 0) -> None:
@@ -22,6 +23,9 @@ class Vector3:
     def toVector3(toConvert: list | tuple[float, float, float] = [0,0,0]):
         return Vector3(toConvert[0], toConvert[1], toConvert[2])
 
+    def toNumpy(self):
+        return np.array(self.toTuple())
+
     # Dunder Methods
     def __add__(self, other = None):
         if type(other) != Vector3: raise TypeError("Can only add Vector3 to Vector3")
@@ -40,6 +44,12 @@ class Vector3:
 
     def __str__(self):
         return f"Vector3({self.x}, {self.y}, {self.z})"
+
+    def __iter__(self):
+        return iter((self.x, self.y, self.z))
+    
+    def __neg__(self):
+        return self * -1
 
     # Variables
     # can't use "@property" because python doesn't seem to recognize it :/
@@ -73,3 +83,33 @@ def RotationMatrix(alpha, beta, gamma):
     
     # From https://stackoverflow.com/questions/21019471/how-can-i-draw-a-3d-shape-using-pygame-no-other-modules
     # Answer by Nitsan BenHanoch
+
+"""
+def RotatePoint(point, rotation):
+    point_vector = point.toNumpy()
+    rotation_matrix = RotationMatrix(*rotation)
+    rotated_point = [
+        sum(rotation_matrix[i][j] * point_vector[j] for j in range(3))
+        for i in range(3)
+    ]
+    return Vector3.toVector3(rotated_point)
+"""
+
+
+def RotatePoint(point, rotation, center):
+    # Step 1: Translate point and center to the origin
+    point_vector = point.toNumpy() - center.toNumpy()
+    
+    # Step 2: Perform the rotation around the origin
+    rotation_matrix = RotationMatrix(*rotation)
+    rotated_point = [
+        sum(rotation_matrix[i][j] * point_vector[j] for j in range(3))
+        for i in range(3)
+    ]
+    
+    # Step 3: Translate the result back to its original position
+    rotated_point = Vector3.toVector3(rotated_point) + center
+    
+    return rotated_point
+
+

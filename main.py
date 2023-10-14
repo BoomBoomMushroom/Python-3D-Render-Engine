@@ -1,17 +1,17 @@
 # Custom Imports
-from dillionMath import Vector3, RotationMatrix
-from pygame_utils.warp import warp as ImageWarpPygame
+from dillionMath import Vector3, RotationMatrix, RotatePoint
+import dillionMath
 
 # Imports
 import pygame
 import numpy as np
 import random
-import pywavefront
 
 pygame.init()
 SCREEN_SIZE = (1920, 1080)
 screen = pygame.display.set_mode(SCREEN_SIZE)
 camera_position: Vector3 = Vector3.zero()
+camera_rotation: Vector3 = Vector3.zero()
 
 WHITE_COLOR = (255,255,255)
 
@@ -25,6 +25,8 @@ def toPyGameCords(x: float|list|tuple = 0, y: float = 0, z: float = 0):
         (SCREEN_SIZE[0]/2) - x,
         (SCREEN_SIZE[1]/2) - y,
     )
+
+    
 
 class PolygonFacedObject():
     def __init__(self, vertices: list[Vector3] = None, faces: list[tuple[int, int]] = None, rotation: list[float,float,float] = [0,0,0], scale: float = 1, position: Vector3 = Vector3.zero()) -> None:
@@ -49,7 +51,7 @@ class PolygonFacedObject():
     
     def tick(self):
         r = 0.05 / 25
-        #r=0
+        r=0
         
         self.rotation[0] += r
         self.rotation[1] += r/2
@@ -89,9 +91,20 @@ class PolygonFacedObject():
                 p = Vector3.toVector3(point)
                 p *= self.scale
                 p += self.position
-                pointAsTuple = Vector3.toTuple(p)
-                pointAsTuple = (pointAsTuple[0], pointAsTuple[1])
-                pyGameTuple = toPyGameCords(pointAsTuple)
+                
+                
+                """
+                # ROTATE POINT AROUND CAMERA
+                translated_point = p - camera_position
+                rotated_point = RotatePoint(translated_point, -camera_rotation, Vector3.zero())
+                rotated_point += camera_position
+                p = rotated_point
+                """
+
+                
+                
+                pyGameTuple = toPyGameCords(*p)
+                
                 
                 newFace.append( pyGameTuple ) # was pointAsTuple
                 #newFace.append(self.fit( point ))
@@ -100,7 +113,6 @@ class PolygonFacedObject():
             #pygame.draw.polygon(screen, faceColors[faceIndex], newFace, 0)
             
             faceIndex += 1
-
 
 obj = PolygonFacedObject(
     [(-1,-1,-1), (-1,-1,1), (-1,1,-1), (-1,1,1),   (1,-1,-1), (1,-1,1), (1,1,-1), (1,1,1)],
@@ -119,6 +131,13 @@ while True:
         if event == pygame.QUIT:
             pygame.quit()
     
+    KEYS = pygame.key.get_pressed()
+    MOVE_SPEED = 0.01
+    
+    if KEYS[pygame.K_c]:
+        camera_rotation += Vector3.right() * MOVE_SPEED
+    if KEYS[pygame.K_z]:
+        camera_rotation += Vector3.left() * MOVE_SPEED
     
     obj.draw()
     obj.tick()
